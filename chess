@@ -1,0 +1,51 @@
+#include <iostream>
+#include "ChessNode.h"
+#include "helpFunctions.h"
+using namespace std;
+
+const int movements[8][2] = {{1, 2}, {1, -2}, {2, 1}, {2, -1}, {-1, 2}, {-1, -2}, {-2, 1}, {-2, -1}};
+
+// кубик - 10 баллов
+// стек undo - redo 5 баллов
+// hashmap 10
+//биграммы 15
+// ход конём 5
+// database 25
+// vector 5
+
+
+int main ()
+{
+	setlocale(LC_ALL, "RUS");
+	string start_cage;
+	string end_cage;
+	cout << "Введите начальную клетку" << endl;
+	cin >> start_cage;
+
+	cout << "Введите конечную клетку" << endl;
+	cin >> end_cage;
+
+	while (int(start_cage[0]) - 97 < 0 || int(end_cage[0]) - 97 < 0 || int(start_cage[0]) - 104 > 0 || int(end_cage[0]) - 104 > 0 || start_cage[1] - '0' < 1 || start_cage[1] - '0' > 8 || end_cage[1] - '0' < 1 || end_cage[1] - '0' > 8)
+	{
+		cout << "Ошибка ввода! Какая-то клетка находится вне координат шахматной доски! Попробуйте ввести данные ещё раз";
+		cin >> start_cage;
+		cin >> end_cage;
+	}
+
+	ChessNode* startCage = new ChessNode(start_cage[0], start_cage[1], nullptr);
+	ChessNode* endCage = new ChessNode(end_cage[0], end_cage[1], nullptr);
+
+	SinglyLinkedList<ChessNode*> list;
+	
+	SinglyLinkedList<ChessNode*> visited;
+	int dist = BFS(startCage, endCage, visited, list);
+
+	cout << "Длина кратчайшего пути:" << endl;
+	for (int i = 0; i < list.getSize(); i++)
+		cout << char(list[i]->value->x + 97) << list[i]->value->y + 1 << endl;
+
+	cout << "Длина пути: " << dist << endl;
+
+
+	return 0;
+}
