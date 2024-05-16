@@ -1,0 +1,69 @@
+#include <iostream>
+#include "StackOnDoublyLinkedList.h"
+using namespace std;
+
+// кубик - 10 баллов
+// стек undo - redo 5 баллов
+// hashmap 10
+//биграммы 15
+// ход конём 5
+// database 25
+// vector 5
+
+
+int main ()
+{
+	setlocale(LC_ALL, "RUS");
+	StackOnDoublyLinkedList<string> undoStack;
+	StackOnDoublyLinkedList<string> redoStack;
+	cout << "Добро пожаловать в псевдотекстовый редактор!" << endl;
+	cout << "Начинайте вводить сообщения! Для отмены сообщения напишите /undo, а чтобы вернуть, что было до отмены, напишите /redo" << endl;
+	cout << "Для прекращения работы с редактором напишите /stop" << endl;
+	string text;
+	std::cin >> text;
+	string prevText = "UNDEFINED";
+	while (text != "/stop")
+	{
+		if (text == "/undo")
+		{
+			if (!undoStack.isEmpty())
+			{
+				redoStack.push(prevText);
+				text = undoStack.pop();
+				prevText = text;
+				cout << text << endl;
+			}
+			else
+			{
+				cout << "Ошибка! Стек отмен пуст или же вы вернулись к исходному варианту вашего сообщения!" << endl;
+				std::cin >> text;
+				continue;
+			}
+		}
+		else if (text == "/redo")
+		{
+			if (!redoStack.isEmpty())
+			{
+				undoStack.push(prevText);
+				text = redoStack.pop();
+				prevText = text;
+				cout << text << endl;
+			}
+			else
+			{
+				cout << "Ошибка! Вы не сделали пока ни одной отмены! Чтобы использовать данную команду, напишить хотя бы один раз /undo" << endl;
+				std::cin >> text;
+				continue;
+			}
+		}
+		else 
+		{
+			if (prevText != "UNDEFINED")
+				undoStack.push(prevText);
+			prevText = text;
+		} 
+		std::cin >> text;
+	}
+
+	return 0;
+}
