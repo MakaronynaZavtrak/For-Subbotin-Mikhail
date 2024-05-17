@@ -1,5 +1,7 @@
+
 #include <iostream>
-#include "StackOnDoublyLinkedList.h"
+#include <string>
+#include "TextEditor.h"
 using namespace std;
 
 // кубик - 10 баллов
@@ -11,58 +13,29 @@ using namespace std;
 // vector 5
 
 
-int main ()
+int main()
 {
 	setlocale(LC_ALL, "RUS");
-	StackOnDoublyLinkedList<string> undoStack;
-	StackOnDoublyLinkedList<string> redoStack;
 	cout << "Добро пожаловать в псевдотекстовый редактор!" << endl;
 	cout << "Начинайте вводить сообщения! Для отмены сообщения напишите /undo, а чтобы вернуть, что было до отмены, напишите /redo" << endl;
 	cout << "Для прекращения работы с редактором напишите /stop" << endl;
-	string text;
-	std::cin >> text;
-	string prevText = "UNDEFINED";
-	while (text != "/stop")
+	string currentMessage = "";
+	std::cin >> currentMessage;
+
+	TextEditor editor;
+
+	while (currentMessage != "/stop")
 	{
-		if (text == "/undo")
-		{
-			if (!undoStack.isEmpty())
-			{
-				redoStack.push(prevText);
-				text = undoStack.pop();
-				prevText = text;
-				cout << text << endl;
-			}
-			else
-			{
-				cout << "Ошибка! Стек отмен пуст или же вы вернулись к исходному варианту вашего сообщения!" << endl;
-				std::cin >> text;
-				continue;
-			}
-		}
-		else if (text == "/redo")
-		{
-			if (!redoStack.isEmpty())
-			{
-				undoStack.push(prevText);
-				text = redoStack.pop();
-				prevText = text;
-				cout << text << endl;
-			}
-			else
-			{
-				cout << "Ошибка! Вы не сделали пока ни одной отмены! Чтобы использовать данную команду, напишить хотя бы один раз /undo" << endl;
-				std::cin >> text;
-				continue;
-			}
-		}
-		else 
-		{
-			if (prevText != "UNDEFINED")
-				undoStack.push(prevText);
-			prevText = text;
-		} 
-		std::cin >> text;
+		if (currentMessage == "/undo")
+			editor.undo();
+		else if (currentMessage == "/redo")
+			editor.redo();
+		else if (currentMessage.substr(0, 4) == "/add")
+			editor.add(currentMessage.substr(5, currentMessage.length() - 5));
+		else if (currentMessage.substr(0, 4) == "/del")
+			editor.del(stoi(currentMessage.substr(5, currentMessage.length() - 5)));
+		editor.printText();
+		std::cin >> currentMessage;
 	}
 
 	return 0;
