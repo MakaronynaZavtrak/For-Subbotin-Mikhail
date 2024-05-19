@@ -1,0 +1,69 @@
+#include <windows.h>
+#include <iostream>
+#include <string>
+#include "HashMap.h"
+using namespace std;
+
+// кубик - 10 баллов
+// стек undo - redo 5 баллов
+// hashmap 10
+//биграммы 15
+// ход конём 5
+// database 25
+// vector 5
+
+string generator()
+{
+	string str = "";
+	for (int i = 0; i < 4; i++)
+		str += char(rand() % 26 + 97 );
+	return str;
+}
+
+int main()
+{
+	HashMap hm1(5, 101);
+	HashMap hm2(3, 77);
+	HashMap hm3(9, 131);
+	HashMap hm4(11, 149);
+	HashMap hm5(3, 99);
+
+	int counter = 0;
+	srand(time(NULL));
+	while(counter < 10000)
+	{
+		string str = generator();
+		if (!hm1.contains(str))
+		{
+			hm1.add(str);
+			hm2.add(str);
+			hm3.add(str);
+			hm4.add(str);
+			hm5.add(str);
+			counter++;
+		}
+	}
+
+	/*freopen("output.txt", "w", stdout);*/
+	cout << "HashMap 1:" << endl;
+	hm1.print();
+	cout << endl << endl;
+
+	cout << "HashMap 2:" << endl;
+	hm2.print();
+	cout << endl << endl;
+
+	cout << "HashMap 3:" << endl;
+	hm3.print();
+	cout << endl << endl;
+
+	cout << "HashMap 4:" << endl;
+	hm4.print();
+	cout << endl << endl;
+
+	cout << "HashMap 5:" << endl;
+	hm5.print();
+	cout << endl << endl;
+
+	return 0;
+}
