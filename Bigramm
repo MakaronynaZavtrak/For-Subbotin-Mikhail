@@ -1,0 +1,22 @@
+#include <iostream>
+#include <fstream>
+#include "FreqDictionary.h"
+using namespace std;
+
+int main()
+{
+	setlocale(LC_ALL, "RUS");
+	FreqDicitonary f(7, 5);
+	string str;
+	ifstream in("input.txt");
+
+	while (!in.eof())
+	{
+		in >> str;
+		f.add(str);
+	}
+	in.close();
+	f.print();
+
+	return 0;
+}
