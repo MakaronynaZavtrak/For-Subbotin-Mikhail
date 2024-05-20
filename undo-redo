@@ -20,7 +20,7 @@ int main()
 	cout << "Начинайте вводить сообщения! Для отмены сообщения напишите /undo, а чтобы вернуть, что было до отмены, напишите /redo" << endl;
 	cout << "Для прекращения работы с редактором напишите /stop" << endl;
 	string currentMessage = "";
-	std::cin >> currentMessage;
+	std::getline(cin, currentMessage);
 
 	TextEditor editor;
 
@@ -35,8 +35,9 @@ int main()
 		else if (currentMessage.substr(0, 4) == "/del")
 			editor.del(stoi(currentMessage.substr(5, currentMessage.length() - 5)));
 		editor.printText();
-		std::cin >> currentMessage;
+		std::getline(cin, currentMessage);
 	}
+
 
 	return 0;
 }
