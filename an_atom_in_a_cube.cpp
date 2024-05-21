@@ -147,7 +147,14 @@ int main()
 		if (vectorLength(normal) > 1)
 			normal = normalize(normal);
 
-		speed = sub(speed, mulByScalar(normal, 2 * scalMul(speed, normal)));
+		/*Vectors proj = mulByScalar(normal, scalMul(normal, speed));*/
+		//Vectors rej = sub(speed, proj);// = sub(speed, mulByScalar(normal, scalMul(normal, speed)))
+		//Vectors reflect = sub(mulByScalar(2, rej), speed);// = sub()
+
+
+		speed = sub(mulByScalar(2, sub(speed, mulByScalar(normal, scalMul(normal, speed)))), speed);
+		//выражение ниже тоже является верным в нахождении отражения вектора скорости
+		/*speed = sub(speed, mulByScalar(normal, 2 * scalMul(speed, normal)));*/
 
 
 		currentTime += 1 - t;
