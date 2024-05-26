@@ -1,22 +1,75 @@
 #include <iostream>
-#include <fstream>
-#include "FreqDictionary.h"
+#include "fstream"
+#include "BigrammDictionary.h"
+
 using namespace std;
+
+string handler(string inputStr)
+{
+	string builder = "";
+	for (int i = 0; i < inputStr.length(); i++)
+	{
+		if (inputStr[i] == '\"' || inputStr[i] == ':' || inputStr[i] == ',' ||
+			inputStr[i] == '.' || inputStr[i] == '!' || inputStr[i] == '?' ||
+			inputStr[i] == '\'' || inputStr[i] == ';' || inputStr[i] == '/')
+			continue;
+		builder += inputStr[i];
+	}
+	return builder;
+}
+
+bool isSeparated(string word)
+{
+	if (word == "")
+		return false;
+	return (word[word.length() - 1] == '.' || word[word.length() - 1] == '!' || word[word.length() - 1] == '?' || 
+		word[word.length() - 1] == ',' || word[word.length() - 1] == ';' || word[word.length() - 1] == ':' ||
+		word[word.length() - 1] == '\'' || word[word.length() - 1] == '\"');
+}
 
 int main()
 {
 	setlocale(LC_ALL, "RUS");
-	FreqDicitonary f(7, 5);
-	string str;
-	ifstream in("input.txt");
+	BigrammDictionary b1;
+	std::ifstream in1("input1.txt");
+	string prev = "";
+	string current = "";
 
-	while (!in.eof())
+	while (!in1.eof())
 	{
-		in >> str;
-		f.add(str);
+		in1 >> current;
+		if (!isSeparated(prev)) 
+			b1.add(handler(prev), handler(current));
+		prev = current;
+			
+		
 	}
-	in.close();
-	f.print();
+	in1.close();
 
+	prev = "";
+
+	/*std::ifstream in2("input2.txt");
+	BigrammDictionary b2;
+
+	while (!in2.eof())
+	{
+		in2 >> current;
+		if (!isSeparated(prev))
+			b2.add(handler(prev), handler(current));
+		prev = current;
+	}
+	in2.close();*/
+
+	/*merge(b1, b2);
+
+	b2.~BigrammDictionary();*/
+
+	b1.print();
+
+	srand(time(NULL));
+
+	cout << b1.generateText("Mama", 2);
+
+	b1.~BigrammDictionary();
 	return 0;
 }
