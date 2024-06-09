@@ -1,7 +1,9 @@
 #include <iostream>
+#include <limits>
 #include "Vectors.h"
 
 using namespace std;
+
 int main()
 {
 	setlocale(LC_ALL, "RUS");
@@ -35,6 +37,7 @@ int main()
 	double currentTime = 0;
 	Vectors newPosition;
 	double t = 0;
+	double Epsilon = numeric_limits<double>::epsilon() * pow(10, 10);
 
 	while (currentTime < T)
 	{
@@ -75,74 +78,59 @@ int main()
 
 		newPosition = sub(newPosition, mulByScalar(t, speed));
 
+		if (newPosition.x - Epsilon <= 0)
+			newPosition.x = 0;
+
+		if (newPosition.x + Epsilon >= 1)
+			newPosition.x = 1;
+
+		if (newPosition.y - Epsilon <= 0)
+			newPosition.y = 0;
+
+		if (newPosition.y + Epsilon >= 1)
+			newPosition.y = 1;
+
+		if (newPosition.z - Epsilon <= 0)
+			newPosition.z = 0;
+
+		if (newPosition.z + Epsilon >= 1)
+			newPosition.z = 1;
+
+
 		//случай, если атом не долетел до границы куба в момент T
 		if (currentTime + 1 - t >= T)
 		{
 			point = sub(newPosition, mulByScalar(currentTime + 1 - t - T, speed));
+
+			if (point.x - Epsilon <= 0)
+				point.x = 0;
+
+			if (point.x + Epsilon >= 1)
+				point.x = 1;
+
+			if (point.y - Epsilon <= 0)
+				point.y = 0;
+
+			if (point.y + Epsilon >= 1)
+				point.y = 1;
+
+			if (point.z - Epsilon <= 0)
+				point.z = 0;
+
+			if (point.z + Epsilon >= 1)
+				point.z = 1;
+
 			break;
 		}
 
+		Vectors normal = add(mulByScalar(newPosition.x == 0, Vectors(1, 0, 0)), add(mulByScalar(newPosition.x == 1, Vectors(-1, 0, 0)), add(mulByScalar(newPosition.y == 0, Vectors(0, 1, 0)), add(mulByScalar(newPosition.y == 1, Vectors(0, -1, 0)), add(mulByScalar(newPosition.z == 0, Vectors(0, 0, 1)), mulByScalar(newPosition.z == 1, Vectors(0, 0, -1)))))));
 
-		Vectors normal;
-		//проверка на соударения
-		//проверка на удары об угол
-		if (!newPosition.x && !newPosition.y && !newPosition.z)
-			normal = Vectors(1, 1, 1);
-		else if (newPosition.x == 1 && !newPosition.y && !newPosition.z)
-			normal = Vectors(-1, 1, 1);
-		else if (!newPosition.x && newPosition.y == 1 && !newPosition.z)
-			normal = Vectors(1, -1, 1);
-		else if (!newPosition.x && !newPosition.y && newPosition.z == 1)
-			normal = Vectors(1, 1, -1);
-		else if (newPosition.x == 1 && !newPosition.y && newPosition.z == 1)
-			normal = Vectors(-1, 1, -1);
-		else if (newPosition.x == 1 && newPosition.y == 1 && !newPosition.z)
-			normal = Vectors(-1, -1, 1);
-		else if (!newPosition.x && newPosition.y == 1 && newPosition.z == 1)
-			normal = Vectors(1, -1, -1);
-		else if (newPosition.x == 1 && newPosition.y == 1 && newPosition.z == 1)
-			normal = Vectors(-1, -1, -1);
-		//проверка на ударения об рёбра
-		//по координате y
-		else if (!newPosition.x && newPosition.y > 0 && newPosition.y < 1 && !newPosition.z)
-			normal = Vectors(1, 0, 1);
-		else if (!newPosition.x && newPosition.y > 0 && newPosition.y < 1 && newPosition.z == 1)
-			normal = Vectors(1, 0, -1);
-		else if (newPosition.x == 1 && newPosition.y > 0 && newPosition.y < 1 && !newPosition.z)
-			normal = Vectors(-1, 0, 1);
-		else if (newPosition.x == 1 && newPosition.y > 0 && newPosition.y < 1 && newPosition.z == 1)
-			normal = Vectors(-1, 0, -1);
-		//по координате x
-		else if (newPosition.x > 0 && newPosition.x < 1 && !newPosition.y && !newPosition.z)
-			normal = Vectors(0, 1, 1);
-		else if (newPosition.x > 0 && newPosition.x < 1 && newPosition.y == 1 && !newPosition.z)
-			normal = Vectors(0, -1, 1);
-		else if (newPosition.x > 0 && newPosition.x < 1 && !newPosition.y && newPosition.z == 1)
-			normal = Vectors(0, 1, -1);
-		else if (newPosition.x > 0 && newPosition.x < 1 && newPosition.y == 1 && newPosition.z == 1)
-			normal = Vectors(0, -1, -1);
-		//по координате z
-		else if (!newPosition.x && !newPosition.y && newPosition.z > 0 && newPosition.z < 1)
-			normal = Vectors(1, 1, 0);
-		else if (!newPosition.x && newPosition.y == 1 && newPosition.z > 0 && newPosition.z < 1)
-			normal = Vectors(1, -1, 0);
-		else if (newPosition.x == 1 && !newPosition.y && newPosition.z > 0 && newPosition.z < 1)
-			normal = Vectors(-1, 1, 0);
-		else if (newPosition.x == 1 && !newPosition.y == 1 && newPosition.z > 0 && newPosition.z < 1)
-			normal = Vectors(-1, -1, 0);
-		//случаи удара об стенку
-		else if (!newPosition.x && newPosition.y > 0 && newPosition.y < 1 && newPosition.z > 0 && newPosition.z < 1)
-			normal = Vectors(1, 0, 0);
-		else if (newPosition.x == 1 && newPosition.y > 0 && newPosition.y < 1 && newPosition.z > 0 && newPosition.z < 1)
-			normal = Vectors(-1, 0, 0);
-		else if (newPosition.x > 0 && newPosition.x < 1 && newPosition.y > 0 && newPosition.y < 1 && !newPosition.z)
-			normal = Vectors(0, 0, 1);
-		else if (newPosition.x > 0 && newPosition.x < 1 && newPosition.y > 0 && newPosition.y < 1 && newPosition.z == 1)
-			normal = Vectors(0, 0, -1);
-		else if (newPosition.x > 0 && newPosition.x < 1 && !newPosition.y && newPosition.z > 0 && newPosition.z < 1)
-			normal = Vectors(0, 1, 0);
-		else if (newPosition.x > 0 && newPosition.x < 1 && newPosition.y == 1 && newPosition.z > 0 && newPosition.z < 1)
-			normal = Vectors(0, -1, 0);
+		if (!speed.x)
+			normal.x = 0;
+		if (!speed.y)
+			normal.y = 0;
+		if (!speed.z)
+			normal.z = 0;
 
 		if (vectorLength(normal) > 1)
 			normal = normalize(normal);
@@ -153,11 +141,14 @@ int main()
 
 
 		speed = sub(mulByScalar(2, sub(speed, mulByScalar(normal, scalMul(normal, speed)))), speed);
+		
 		//выражение ниже тоже является верным в нахождении отражения вектора скорости
 		/*speed = sub(speed, mulByScalar(normal, 2 * scalMul(speed, normal)));*/
 
 
 		currentTime += 1 - t;
+			
+
 		t = 0;
 		point = newPosition;
 	}
