@@ -1,75 +1,154 @@
 #include <iostream>
-#include "fstream"
+#include <string>
+#include <fstream>
+#include <filesystem>
 #include "BigrammDictionary.h"
+#include "stringHandlers.h"
 
-using namespace std;
-
-string handler(string inputStr)
-{
-	string builder = "";
-	for (int i = 0; i < inputStr.length(); i++)
-	{
-		if (inputStr[i] == '\"' || inputStr[i] == ':' || inputStr[i] == ',' ||
-			inputStr[i] == '.' || inputStr[i] == '!' || inputStr[i] == '?' ||
-			inputStr[i] == '\'' || inputStr[i] == ';' || inputStr[i] == '/')
-			continue;
-		builder += inputStr[i];
-	}
-	return builder;
-}
-
-bool isSeparated(string word)
-{
-	if (word == "")
-		return false;
-	return (word[word.length() - 1] == '.' || word[word.length() - 1] == '!' || word[word.length() - 1] == '?' || 
-		word[word.length() - 1] == ',' || word[word.length() - 1] == ';' || word[word.length() - 1] == ':' ||
-		word[word.length() - 1] == '\'' || word[word.length() - 1] == '\"');
-}
+using std::cout, std::cin, std::string, std::endl, std::ifstream, std::pair, std::filesystem::exists, std::filesystem::is_empty;
 
 int main()
 {
 	setlocale(LC_ALL, "RUS");
+
 	BigrammDictionary b1;
-	std::ifstream in1("input1.txt");
-	string prev = "";
-	string current = "";
+	cout << "Выберите один из двух режимов: \"learning\" - обучение, \"generation\" - генерация текста" << endl;
+	string mode = "";
+	getline(cin, mode);
 
-	while (!in1.eof())
+	while (mode != "learning" && mode != "generation")
 	{
-		in1 >> current;
-		if (!isSeparated(prev)) 
-			b1.add(handler(prev), handler(current));
-		prev = current;
-			
-		
+		cout << "Ошибка! Данного режима не существует...Может, вы ошиблись в вводе? Попробуйте ещё раз!" << endl;
+		getline(cin, mode);
 	}
-	in1.close();
 
-	prev = "";
-
-	/*std::ifstream in2("input2.txt");
-	BigrammDictionary b2;
-
-	while (!in2.eof())
+	if (mode == "learning")
 	{
-		in2 >> current;
-		if (!isSeparated(prev))
-			b2.add(handler(prev), handler(current));
-		prev = current;
+		cout << "Каким образом вы хотите обучить словарь?" << endl;
+		cout << "\"file\" - с помощью файла, \"custom text\" - с помощью введенного текста?" << endl;
+		getline(cin, mode);
+		while (mode != "file" && mode != "custom text")
+		{
+			cout << "Ошибка! Данного метода обучения не существует...Наверное, вы ошиблись в вводе. Попробуйте ещё раз!" << endl;
+			getline(cin, mode);
+		}
+
+		string path;
+		string firstWord;
+		string secondWord;
+
+		if (mode == "file") 
+		{
+			cout << "Введите путь текстового файла, который нужно проанализировать" << endl;
+			getline(cin, path);
+			ifstream in(path);
+
+			//проверка на корректность введенного пути до файла
+			while (!in.is_open())
+			{
+				cout << "Ошибка! Неверный путь к файлу!" << endl;
+				getline(cin, path);
+				in.open(path);
+			}
+
+			if (!in.eof())
+				in >> firstWord;
+
+			//чтение из файла
+			while (!in.eof())
+			{
+				in >> secondWord;
+				if (!isSeparated(firstWord))
+					b1.add(handler(firstWord), handler(secondWord));
+				firstWord = secondWord;
+			}
+		}
+		//иначе mode == "custom text"
+		else 
+		{
+			cout << "Введите текст, на котором хотите обучить словарь" << endl;
+			string text;
+			getline(cin, text);
+			pair<string*, int> words = splitText(text);
+			firstWord = words.first[0];
+
+			for (int i = 1; i < words.second; i++)
+			{
+				secondWord = words.first[i];
+				if (!isSeparated(firstWord))
+					b1.add(handler(firstWord), handler(secondWord));
+				firstWord = secondWord;
+			}
+		}
+
+		//сохранение данных в словарик
+		cout << "Введите путь файла, в котором вы хотите сохранить полученные данные" << endl;
+		getline(cin, path);
+
+		//проверка на наличие файла
+		while (!exists(path))
+		{
+			cout << "Ошибка! Файл не найден!" << endl;
+			getline(cin, path);
+		}
+
+		//если файл для записи данных является пустым
+		if (is_empty(path))
+			b1.upload(path);
+		//если в файле уже присутствуют какие-то данные
+		else
+		{
+			cout << "Внимание! Файл, в который вы хотите записать данные, уже что-то содержит! Как вы хотите поступить с файлом?" << endl;
+			cout << "\"rewrite\" - удалить имеющиеся данные в файле и сохранить в нём только что полученные," << endl;
+			cout << "\"append\" - совместить статистику биграмм с имеющимися в файле и добавить новые биграммы в конец файла" << endl;
+			string option;
+			getline(cin, option);
+			while (option != "rewrite" && option != "append") 
+			{
+				cout << "Ошибка! Данной команды не существует! Попробуйте ещё раз!" << endl;
+				getline(cin, option);
+			}
+			if (option == "rewrite")
+				b1.upload(path);
+			else
+			{
+				b1.download(path);
+				b1.upload(path);
+			}
+		}
+
+		cout << "Полученные данные:" << endl;
+		b1.print();
+
+
+ 	}
+	//иначе mode == "generation"
+	else
+	{
+		cout << "Введите предложение, с которого нужно начать генерировать текст" << endl;
+		string sentence;
+		getline(cin, sentence);
+		cout << "Введите число, на которое нужно продолжить текст" << endl;
+		int num;
+		cin >> num;
+
+		//здесь возникает необходимость прописывать полный путь по той причине,
+		//что программа иначе не будет работать в командной строке
+		b1.download("C:\\Users\\user\\source\\repos\\Learning\\data.txt");
+		cout << typeid(num).name() << ':' << num << endl;
+		pair<string, int> lastWordAndSpaceIdx = getLastWordAndSpaceIdx(sentence);
+
+		//если пользователь ввел одно слово
+		if (lastWordAndSpaceIdx.first == sentence)
+			cout << b1.generateText(num, sentence) << endl;
+		//иначе пользователь ввел более одного слова
+		else 
+		{
+			cout << "Полученный текст:" << endl;
+			cout << sentence.substr(0, lastWordAndSpaceIdx.second + 1) << b1.generateText(num, lastWordAndSpaceIdx.first);
+		}
 	}
-	in2.close();*/
-
-	/*merge(b1, b2);
-
-	b2.~BigrammDictionary();*/
-
-	b1.print();
-
-	srand(time(NULL));
-
-	cout << b1.generateText("Mama", 2);
-
 	b1.~BigrammDictionary();
+
 	return 0;
 }
