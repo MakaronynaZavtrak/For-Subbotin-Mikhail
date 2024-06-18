@@ -84,8 +84,12 @@ string codeString(string inputStr, map<string, string>& codes)
 					min2 = current;
 				continue;
 			}
-			if (current->freq < min1->freq)
+			if (current->freq < min1->freq) 
+			{
+				if (min1->freq < min2->freq)
+					min2 = min1;
 				min1 = current;
+			}
 			if (current->freq < min2->freq && current != min1)
 				min2 = current;
 		}
