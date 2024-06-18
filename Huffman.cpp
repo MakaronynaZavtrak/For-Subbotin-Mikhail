@@ -43,6 +43,7 @@ void Free(Node* root)
 		Free(root->left);
 	if (root->right)
 		Free(root->right);
+	delete root;
 	root = nullptr;
 }
 
